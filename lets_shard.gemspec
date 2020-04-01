@@ -5,6 +5,7 @@ Gem::Specification.new do |spec|
   spec.version = LetsShard::VERSION
   spec.authors = ['oshboul']
   spec.email = ['omar.abdula@gmail.com']
+  spec.licenses = ['MIT']
 
   spec.summary = spec.description = 'An easy way to shard anything!'
   spec.homepage = 'https://github.com/oshboul/lets_shard'
