@@ -12,7 +12,7 @@ class LetsShard
 
     @objects = objects
     @weights = weights.any? ? weights : Array.new(@objects.size, 1)
-    @slots = @objects.size < DEFAULT_SLOTS ? DEFAULT_SLOTS : @objects.size
+    @slots = [DEFAULT_SLOTS, weights.sum].max
 
     set_unit_weight!
     set_remainder_slots!
@@ -41,8 +41,9 @@ class LetsShard
       end_slot = start_slot + (@weights[index] * @unit_weight) - 1
 
       if @remainder_slots > 0
-        end_slot += 1
-        @remainder_slots -= 1
+        slots_to_add = [@weights[index], @remainder_slots].min
+        end_slot += slots_to_add
+        @remainder_slots -= slots_to_add
       end
 
       @shards << Shard.new(object, start_slot, end_slot)
@@ -51,12 +52,16 @@ class LetsShard
     end
   end
 
+  def weights_sum
+    @weights.inject(0, :+)
+  end
+
   def set_unit_weight!
-    @unit_weight = @slots / @weights.inject(0, :+)
+    @unit_weight = @slots / weights_sum
   end
 
   def set_remainder_slots!
-    @remainder_slots = @slots - (@unit_weight * @objects.size)
+    @remainder_slots = @slots - (@unit_weight * weights_sum)
   end
 
   def get_hkey(key)
