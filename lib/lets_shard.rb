@@ -5,15 +5,17 @@ require 'lets_shard/shard'
 class LetsShard
   attr_reader :shards
 
-  SLOTS = 16384
+  DEFAULT_SLOTS = 16384
 
-  def initialize(objects, weights = [])
+  def initialize(objects, weights: [])
     validate_parameters!(objects, weights)
 
     @objects = objects
     @weights = weights.any? ? weights : Array.new(@objects.size, 1)
+    @slots = @objects.size < DEFAULT_SLOTS ? DEFAULT_SLOTS : @objects.size
 
     set_unit_weight!
+    set_remainder_slots!
     generate_shards!
   end
 
@@ -36,7 +38,12 @@ class LetsShard
     start_slot = 0
 
     @objects.each_with_index do |object, index|
-      end_slot = [start_slot + (@weights[index] * @unit_weight), SLOTS - 1].min
+      end_slot = start_slot + (@weights[index] * @unit_weight) - 1
+
+      if @remainder_slots > 0
+        end_slot += 1
+        @remainder_slots -= 1
+      end
 
       @shards << Shard.new(object, start_slot, end_slot)
 
@@ -45,11 +52,15 @@ class LetsShard
   end
 
   def set_unit_weight!
-    @unit_weight = (SLOTS.to_f / @weights.inject(0, :+)).ceil
+    @unit_weight = @slots / @weights.inject(0, :+)
+  end
+
+  def set_remainder_slots!
+    @remainder_slots = @slots - (@unit_weight * @objects.size)
   end
 
   def get_hkey(key)
-    Digest.crc16(key.to_s) % SLOTS
+    Digest.crc16(key.to_s) % @slots
   end
 
   def validate_parameters!(objects, weights)
