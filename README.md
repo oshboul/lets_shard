@@ -65,12 +65,12 @@ redis_shards = LetsShard.new([redis1, redis2])
 redis_shards.get_object('key').set('key', 'value')
 redis_shards.get_object('key').get('key')
 
-# redis_shards.get_object('key')... any redis command!
+# redis_shards.get_object('key').any_redis_command
 ```
 
 ### LetsShard let you distribute objects usage better!
 
-If you are use 3 redis instances in 3 servers, but one of these servers has more
+If you are using 3 redis instances in 3 servers, but one of these servers has more
 powerful specifications than the others and you want to utilize its power.
 
 **LetsShard** can solve it for you, easily!
@@ -86,7 +86,7 @@ redis3 = Redis.new(host: "10.0.0.3", port: 6379)
 redises = [redis1, redis2, redis3]
 weights = [2, 1, 1] # By default, the weight of each object is 1
 
-redis_shards = LetsShard.new(redises, weights)
+redis_shards = LetsShard.new(redises, weights: weights)
 
 # So now LetsShard will give redis1 more slots to utilize it more!
 ```
@@ -99,3 +99,8 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/oshbou
 ## Code of Conduct
 
 Everyone interacting in the LetsShard project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/lets_shard/blob/master/CODE_OF_CONDUCT.md).
+
+
+## License
+
+LetsShard is released under the [MIT License](https://opensource.org/licenses/MIT).
